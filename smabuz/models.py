@@ -45,7 +45,7 @@ class Products(db.Model):
     def __repr__(self):
         return "<Products {}>".format(self.id)
 
-class Sales(db.Model):
+class Sales(db.Model): #record
     __tablename__ = 'sales'
 
     id = db.Column(db.Integer, primary_key=True)

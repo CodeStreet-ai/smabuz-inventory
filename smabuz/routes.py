@@ -3,10 +3,6 @@ from flask import request
 from models import db, UserRoles, Users, Products, Sales, Customers, InventoryLogs
 
 
-def hash_password(password):
-    pass
-# resource routes below !
-# id(unique-identifier) -> (self,ui)
 
 class GetUsers(Resource):
     def get(self):
@@ -23,12 +19,18 @@ class GetPostUser(Resource):
         user = Users(username=data['name'], email=data['email'], 
                     password_hash=data['password_hash']
                      )
+        # TODO hashing, and password authentication, jwt.
         db.session.add(user)
         db.session.commit()
 
         users = GetUsers.get()
 
         return users
+
+# TODO logging in and out, jwt authentication.
+class LoginUser(Resource):
+    def post():
+        pass
 
 class GetProducts(Resource):
     def get(self):
@@ -51,9 +53,11 @@ class GetPostPutDelProduct(Resource):
         return products
 
     def put(self):
+    # TODO route for editing products.
         pass
     
     def delete(self):
+    # TODO route for deleting products.
         pass
 
 class GetSales(Resource):

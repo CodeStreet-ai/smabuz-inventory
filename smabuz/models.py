@@ -1,9 +1,17 @@
-from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_sqlalchemy import SQLAlchemy
 from app import app
-
+from flask_migrate import Migrate
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+"""flask shell
+
+db.create_all()
+# db migrations
+flask db migrate -m "Description of your changes"
+flask db upgrade
+"""
 
 class UserRoles(db.Model):
     __tablename__ = 'user_roles'
@@ -17,7 +25,7 @@ class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True)
     email = db.Column(db.String(100), unique=True)
-    password_hash = db.Column(db.String(120))
+    password = db.Column(db.String(80))
     role_id = db.Column(db.Integer, db.ForeignKey('user_roles.id'), nullable=False)
     products = db.relationship('Products', backref='user')  # One-to-Many (Optional)
 
@@ -54,7 +62,7 @@ class Sales(db.Model): #record
     quantity = db.Column(db.Integer)
     price = db.Column(db.Integer)
     date_sold = db.Column(db.DateTime)
-    customer = db.relationship('Customers', backref='sales')  # One-to-Many (Optional)
+    customer = db.relationship('Customers', backref='customer_sales')  # One-to-Many (Optional)
 
     def __repr__(self):
         return "<Sales {}>".format(self.id)
@@ -65,7 +73,6 @@ class Customers(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
     email = db.Column(db.String(100), unique=True)
-    sales = db.relationship('Sales', backref='customer')  # One-to-Many (Optional)
 
     def __repr__(self):
         return "<Customers {}>".format(self.id)

@@ -7,11 +7,20 @@ api = Api(app) # RESTful instance.
 
 app.config['SQLALCHEMY_DATABASE_URI'] = conn()
 
-@app.route('/')
-def smabuz():
-    return {"message": "smabuz v2.0"}
+
+from routes import *
+
+api.add_resource(GetUsers, '/users') #smabuz restricted
+api.add_resource(GetPostUser, '/user/<int:ui>')
+
+api.add_resource(GetProducts, '/products')
+api.add_resource(GetPostPutDelProduct, '/product/<int:ui>')
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+api.add_resource(GetSales, '/sales')
+api.add_resource(GetPostSale, '/sale/<int:ui>')
 
+api.add_resource(GetCustomers, '/customers')
+api.add_resource(GetPostCustomer, '/customer/<int:ui>')
+
+api.add_resource(GetPostInventoryLogs, '/logs')

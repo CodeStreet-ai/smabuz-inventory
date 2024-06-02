@@ -1,4 +1,3 @@
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from app import app
 from flask_migrate import Migrate
@@ -13,27 +12,14 @@ flask db migrate -m "Description of your changes"
 flask db upgrade
 """
 
-class UserRoles(db.Model):
-    __tablename__ = 'user_roles'
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), unique=True)
-
 class Users(db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True)
     email = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(80))
-    role_id = db.Column(db.Integer, db.ForeignKey('user_roles.id'), nullable=False)
+    google_id = db.Column(db.String(200), unique=True)
     products = db.relationship('Products', backref='user')  # One-to-Many (Optional)
-
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
         return "<Users {}>".format(self.id)

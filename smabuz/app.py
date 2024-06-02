@@ -1,26 +1,24 @@
 from flask import Flask
-from flask_restful import Api
 from config import conn
+from flask_oauthlib.client import OAuth
+from flask_cors import CORS
+from utils.auth import GOOGLE_CLIENT_SECRET, GOOGLE_CLIENT_ID
 
 app = Flask(__name__)
-api = Api(app) # RESTful instance.
-
+CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = conn()
+app.config['SECRET_KEY'] = 'your_secret_key'
+oauth = OAuth(app)
 
-
-from routes import *
-
-api.add_resource(GetUsers, '/users') #smabuz restricted
-api.add_resource(GetPostUser, '/user/<int:ui>')
-
-api.add_resource(GetProducts, '/products')
-api.add_resource(GetPostPutDelProduct, '/product/<int:ui>')
-
-
-api.add_resource(GetSales, '/sales')
-api.add_resource(GetPostSale, '/sale/<int:ui>')
-
-api.add_resource(GetCustomers, '/customers')
-api.add_resource(GetPostCustomer, '/customer/<int:ui>')
-
-api.add_resource(GetPostInventoryLogs, '/logs')
+google = oauth.remote_app('google',
+    consumer_key=GOOGLE_CLIENT_ID,
+    consumer_secret=GOOGLE_CLIENT_SECRET,
+    request_token_params={
+        'scope': 'email profile', # basic google email and user info.
+    },
+    base_url='https://www.googleapis.com/oauth2/v1/',
+    request_token_url=None,
+    access_token_method='POST',
+    access_token_url='https://accounts.google.com/o/oauth2/token',
+    authorize_url='https://accounts.google.com/o/oauth2/auth'
+)

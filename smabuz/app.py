@@ -3,11 +3,15 @@ from config import conn
 from flask_oauthlib.client import OAuth
 from flask_cors import CORS
 from utils.auth import GOOGLE_CLIENT_SECRET, GOOGLE_CLIENT_ID
+from decouple import config
+
 
 app = Flask(__name__)
 CORS(app)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = conn()
-app.config['SECRET_KEY'] = 'your_secret_key'
+app.config['SECRET_KEY'] = config('SECRET_KEY')
+
 oauth = OAuth(app)
 
 google = oauth.remote_app('google',

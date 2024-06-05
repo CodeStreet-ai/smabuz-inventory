@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smabuz Test</title>
+</head>
+
+<body>
+    <h4>{{name}}</h4>
+    <h5>{{email}}</h5>
+    {{status}}
+    <p>{{message}}</p>
+    <section>
+        <a href="{{ url_for('login') }}">login</a>
+    </section>
+    <section>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </section>
+</body>
+
+</html>

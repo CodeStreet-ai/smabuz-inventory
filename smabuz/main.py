@@ -1,31 +1,31 @@
 from app import app, google
 from models import db, Users, Products, Sales, Customers, InventoryLogs
-from flask import jsonify, session, url_for, request, redirect
+from flask import jsonify, session, url_for, request, redirect, render_template
 
 
-##### USER ROUTES #####
-@app.route('/api/smabuz', methods=['GET'])
-def smabuz():
-    return jsonify({'message':'Welcome to Smabuz!'})
+##### LOGIN/GOOGLE OAUTH ROUTES #####
 
-@app.route('/api/')
+@app.route('/home')
 def index():
-    user = Users.query.filter_by(google_id=session['google_token'][0]).first()
-    return jsonify({
-        'username': user.username,
-        'email': user.email,
-    })
+    if 'google_token' in session:
+        userinfo = google.get('userinfo')
+        user_data = userinfo.data
+        user = Users.query.filter_by(google_id=user_data['id']).first()     
+        return render_template('home.html', name=user.username, email=user.email, status='Logged In :)')
+    return render_template('home.html', name='logged out', email='logged out', status='Logged Out :(')
 
-@app.route('/api/login/callback')
+@app.route('/login/callback')
 def login():
+    if 'google_token' in session:
+                return render_template('home.html', status='Log Out First :)')
     return google.authorize(callback=url_for('authorized', _external=True))
 
-@app.route('/api/logout')
+@app.route('/logout')
 def logout():
-    response = jsonify({'message': 'Logged out successfully'})
-    return response
+    session.pop('google_token', None)
+    return redirect(url_for('index'))
 
-@app.route('/api/login/authorized')
+@app.route('/login/authorized')
 def authorized():
     response = google.authorized_response()
     if response is None or response.get('access_token') is None:
@@ -58,15 +58,7 @@ def authorized():
             db.session.add(user)
     
     db.session.commit()
-
-    access_token = create_access_token(identity=user.email)
-    return redirect(url_for('token', token=access_token))
-
-
-@app.route('/api/token')
-def token():
-    token = request.args.get('token')
-    return jsonify({'token': token})
+    return redirect(url_for('index'))
 
 @google.tokengetter
 def get_google_oauth_token():

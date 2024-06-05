@@ -1,7 +1,6 @@
 from app import app, google
 from models import db, Users, Products, Sales, Customers, InventoryLogs
 from flask import jsonify, session, url_for, request, redirect
-from flask_jwt_extended import create_access_token, unset_jwt_cookies, jwt_required, get_jwt_identity
 
 
 ##### USER ROUTES #####
@@ -10,9 +9,7 @@ def smabuz():
     return jsonify({'message':'Welcome to Smabuz!'})
 
 @app.route('/api/')
-@jwt_required()
 def index():
-    current_user = get_jwt_identity()
     user = Users.query.filter_by(google_id=session['google_token'][0]).first()
     return jsonify({
         'username': user.username,
@@ -24,10 +21,8 @@ def login():
     return google.authorize(callback=url_for('authorized', _external=True))
 
 @app.route('/api/logout')
-@jwt_required()
 def logout():
     response = jsonify({'message': 'Logged out successfully'})
-    unset_jwt_cookies(response)
     return response
 
 @app.route('/api/login/authorized')

@@ -19,10 +19,14 @@ class Users(db.Model):
     username = db.Column(db.String(100), unique=True)
     email = db.Column(db.String(100), unique=True)
     google_id = db.Column(db.String(200), unique=True)
-    products = db.relationship('Products', backref='user')  # One-to-Many (Optional)
+    products = db.relationship('Products', backref='user', lazy=True)
+    sales = db.relationship('Sales', backref='user', lazy=True)
+    customers = db.relationship('Customers', backref='user', lazy=True)
+    inventory_logs = db.relationship('InventoryLogs', backref='user', lazy=True)
 
     def __repr__(self):
         return "<Users {}>".format(self.id)
+
 
 class Products(db.Model):
     __tablename__ = 'products'
@@ -32,26 +36,29 @@ class Products(db.Model):
     name = db.Column(db.String(50))
     quantity = db.Column(db.Integer)
     price = db.Column(db.Integer)
-    product_id = db.Column(db.Integer, db.ForeignKey('users.id'))  # Removed for flexibility
-    sales = db.relationship('Sales', backref='product')  # One-to-Many
-    inventory_logs = db.relationship('InventoryLogs', backref='product')  # One-to-Many
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    sales = db.relationship('Sales', backref='product', lazy=True)
+    inventory_logs = db.relationship('InventoryLogs', backref='product', lazy=True)
 
     def __repr__(self):
         return "<Products {}>".format(self.id)
 
-class Sales(db.Model): #record
+
+class Sales(db.Model):  # record
     __tablename__ = 'sales'
 
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
-    customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))  # Optional - Foreign Key for Customer
+    customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     quantity = db.Column(db.Integer)
     price = db.Column(db.Integer)
     date_sold = db.Column(db.DateTime)
-    customer = db.relationship('Customers', backref='customer_sales')  # One-to-Many (Optional)
+    customer = db.relationship('Customers', backref='customer_sales', lazy=True)
 
     def __repr__(self):
         return "<Sales {}>".format(self.id)
+
 
 class Customers(db.Model):
     __tablename__ = 'customers'
@@ -59,15 +66,19 @@ class Customers(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
     email = db.Column(db.String(100), unique=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    sales = db.relationship('Sales', backref='customer', lazy=True)
 
     def __repr__(self):
         return "<Customers {}>".format(self.id)
+
 
 class InventoryLogs(db.Model):
     __tablename__ = 'inventory_logs'
 
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     quantity = db.Column(db.Integer)
     action = db.Column(db.String(50))  # "Added", "Removed", "Sold" etc.
     date = db.Column(db.DateTime)
